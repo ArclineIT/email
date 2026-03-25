@@ -3,12 +3,12 @@
 ## Phase 1: MVP (Core Mail Flow)
 
 ### Project Setup
-- [ ] Initialize Go module (`go mod init arcline-email`)
-- [ ] Set up directory structure (`cmd/`, `internal/`, `config/`)
-- [ ] Add `.gitignore`
-- [ ] Wire up config parsing (TOML)
-- [ ] Structured logging (`log/slog`)
-- [ ] Graceful shutdown (signal handling)
+- [x] Initialize Go module (`go mod init arcline-email`)
+- [x] Set up directory structure (`cmd/`, `internal/`, `config/`)
+- [x] Add `.gitignore`
+- [x] Wire up config parsing (TOML)
+- [x] Structured logging (`log/slog`)
+- [x] Graceful shutdown (signal handling)
 
 ### SMTP — Inbound (Port 25)
 - [ ] Basic SMTP listener using `emersion/go-smtp`

@@ -1,0 +1,40 @@
+# Binaries
+/arcline-email
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of `go env GOPATH`
+/go/
+
+# Dependency vendor directory
+vendor/
+
+# Go workspace
+go.work
+go.work.sum
+
+# Environment / secrets
+*.env
+.env*
+*.pem
+*.key
+
+# Config (use arcline-email.example.toml as template)
+arcline-email.toml
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
