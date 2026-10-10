@@ -1,55 +1,84 @@
-# Contributing to arcline-email
+# Contributing
 
-Thanks for your interest. This is a small project maintained by one person, so
-keep expectations calibrated accordingly.
+How changes are made in this repository. The same rules apply in every Arcline
+repository.
 
-## Getting Started
+## The flow
 
-1. Fork the repo and clone your fork
-2. Make sure you have Go 1.22+ installed
-3. Run `go mod tidy` to pull dependencies
-4. Build with `go build ./...` and confirm it compiles clean
+```
+your-branch ──pull request──▶ dev ──▶ qa ──▶ staging ──▶ production
+```
 
-## Reporting Issues
+- `dev` is the source of truth. All work merges into it.
+- `qa`, `staging` and `production` only ever receive what the stage before
+  them has. Nobody commits to them directly.
+- `main` is not part of the flow. Do not branch from it or target it.
 
-Open a GitHub issue. Include:
-- What you were trying to do
-- What happened instead
-- Relevant logs or error output
-- Go version and OS
+## Making a change
 
-For security vulnerabilities, do **not** open a public issue. Email
-`blake@arclineit.com` directly with details.
+1. Start from an up-to-date `dev`: `git switch dev && git pull --ff-only`.
+2. Create a branch named for the change, in lowercase with hyphens:
+   `add-dkim-rotation`, `fix-ticket-reply-email`. No names, dates or ticket
+   numbers.
+3. Keep it small and short-lived: one purpose, merged within a day or two.
+   Split anything bigger, and hide unfinished work behind a flag or by not
+   linking to it.
+4. Before pushing: `bin/rails test`, `bin/rubocop` and `bin/brakeman` pass.
+   `bin/ci` runs all of them.
+5. Push and open a pull request into `dev`.
 
-## Submitting Changes
+## Commits
 
-1. Open an issue first for anything non-trivial — discuss the approach before
-   writing code
-2. Keep PRs focused: one fix or feature per PR
-3. Write clear commit messages (what changed and why, not just what)
-4. Make sure `go build ./...` and `go vet ./...` pass before submitting
-5. If you add a new package, add a brief comment at the top explaining what
-   it does
+```
+Add the DNS check
 
-## Code Style
+The domain page listed the records to publish but could not say whether
+they were live. This compares them with what DNS actually answers.
+```
 
-- Standard `gofmt` formatting — no exceptions
-- Exported identifiers get doc comments
-- Errors are returned, not logged inside library code
-- No `panic` in non-main packages
-- Prefer the standard library over adding new dependencies; new deps need a
-  reason
+- **Subject:** what the commit does, in the imperative ("Add", "Fix",
+  "Remove"), sentence case, no full stop, about 60 characters at most.
+- **Body, when the subject is not enough:** why the change was made and
+  anything surprising about it, wrapped at about 72 characters. Say what you
+  could not test.
+- **One purpose per commit.** A fix and a tidy-up are two commits.
+- No type prefixes (`feat:`, `fix:`), no ticket numbers in the subject, no
+  co-author trailers.
+- Commits made by automation keep their own form, such as
+  `build: automatic update of <app>`, so they are easy to tell apart.
 
-## What Gets Accepted
+## Pull requests
 
-This project has a specific scope (see `todo.md` and `README.md`). PRs that
-add features outside that scope are unlikely to be merged, not because they're
-bad ideas, but because scope creep is how small projects become unmaintainable.
+- **Title:** written like a commit subject. It becomes part of the history.
+- **Description:** fill in the template. "Not checked" matters as much as
+  "How it was checked".
+- **Size:** something a reviewer can read in about ten minutes.
+- **Review:** one approval from someone other than the author. The review bot
+  comments on every pull request; that is a second pair of eyes, not an
+  approval. Changes to authentication, encryption or anything handling
+  secrets need a reviewer who knows that code.
+- **Green before merge:** nothing merges with failing checks.
+- **Merging:** use a merge commit, then delete the branch.
+- **After merging:** if something goes wrong, revert on `dev` with a new
+  commit. Never rewrite the history of `dev`, `qa`, `staging` or `production`.
 
-If you want to propose something outside current scope, open an issue and make
-the case first.
+The review bot sends each pull request's diff to an outside service. Never put
+a secret in a diff, even one you intend to remove in a later commit.
 
-## License
+## Promotion
 
-By contributing, you agree that your contributions will be licensed under the
-same MIT license as the project.
+Moving code from one stage to the next is a fast-forward and adds no commits,
+so it has no pull request description to write:
+
+```bash
+git fetch origin
+git push origin origin/dev:qa
+```
+
+If git refuses, someone committed to the stage directly. Do not force it.
+
+## Reporting a problem
+
+Open an issue using the bug report template. Leave out secrets and customer
+data. For a security problem, contact the maintainer directly instead of
+opening an issue.
