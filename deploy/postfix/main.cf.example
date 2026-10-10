@@ -1,0 +1,20 @@
+# The parts of main.cf that tie Postfix to the arcline-email database.
+# Needs the postfix-sqlite package.
+
+virtual_mailbox_domains = sqlite:/etc/postfix/sqlite-virtual-domains.cf
+virtual_mailbox_maps    = sqlite:/etc/postfix/sqlite-virtual-mailboxes.cf
+virtual_alias_maps      = sqlite:/etc/postfix/sqlite-virtual-aliases.cf,
+                          sqlite:/etc/postfix/sqlite-virtual-mailbox-identity.cf,
+                          sqlite:/etc/postfix/sqlite-virtual-catchall.cf
+
+# Hand accepted mail to Dovecot, which enforces quotas and writes the Maildir.
+virtual_transport = lmtp:unix:private/dovecot-lmtp
+
+# Submission users authenticate against Dovecot.
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+
+# Sign outgoing mail with OpenDKIM (keys from: bin/rails 'email:dkim_export[/etc/opendkim]').
+smtpd_milters     = inet:127.0.0.1:8891
+non_smtpd_milters = $smtpd_milters
+milter_default_action = accept

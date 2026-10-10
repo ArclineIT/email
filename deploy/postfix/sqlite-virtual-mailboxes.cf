@@ -1,0 +1,6 @@
+# Mailboxes, and where each is stored under virtual_mailbox_base.
+#   virtual_mailbox_maps = sqlite:/etc/postfix/sqlite-virtual-mailboxes.cf
+dbpath = /var/lib/arcline-email/production.sqlite3
+query = SELECT domains.name || '/' || mailboxes.local_part || '/' FROM mailboxes
+        JOIN domains ON domains.id = mailboxes.domain_id
+        WHERE mailboxes.address = '%s' AND mailboxes.active = 1 AND domains.active = 1

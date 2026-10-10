@@ -1,0 +1,4 @@
+# Maps each mailbox to itself, so that a catch-all does not swallow mail for
+# mailboxes that exist.
+dbpath = /var/lib/arcline-email/production.sqlite3
+query = SELECT address FROM mailboxes WHERE address = '%s' AND active = 1

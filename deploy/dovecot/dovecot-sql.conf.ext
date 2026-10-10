@@ -1,0 +1,20 @@
+# Dovecot reads users and passwords from the arcline-email database.
+# Needs the dovecot-sqlite package. Open the database read-only for Dovecot.
+
+driver = sqlite
+connect = /var/lib/arcline-email/production.sqlite3
+
+# Passwords are bcrypt, which Dovecot calls BLF-CRYPT.
+default_pass_scheme = BLF-CRYPT
+
+password_query = SELECT mailboxes.address AS user, mailboxes.password_digest AS password \
+  FROM mailboxes JOIN domains ON domains.id = mailboxes.domain_id \
+  WHERE mailboxes.address = '%u' AND mailboxes.active = 1 AND domains.active = 1
+
+user_query = SELECT '/var/mail/' || domains.name || '/' || mailboxes.local_part AS home, \
+  'maildir:~/Maildir' AS mail, 'vmail' AS uid, 'vmail' AS gid, \
+  '*:storage=' || mailboxes.quota_mb || 'M' AS quota_rule \
+  FROM mailboxes JOIN domains ON domains.id = mailboxes.domain_id \
+  WHERE mailboxes.address = '%u' AND mailboxes.active = 1 AND domains.active = 1
+
+iterate_query = SELECT address AS user FROM mailboxes WHERE active = 1

@@ -1,0 +1,17 @@
+<header class="site-header">
+  <div class="container site-header__inner">
+    <%= link_to root_path, class: "logo", aria: { label: "Arcline Email home" } do %>
+      <%= render "shared/logo", size: 28 %>
+      <span class="logo__word">Arcline</span>
+    <% end %>
+    <span class="site-header__tag">Email</span>
+
+    <nav class="nav" aria-label="Main">
+      <%= link_to "Domains", root_path, class: "nav__link" %>
+      <button class="theme-toggle" type="button" data-controller="theme" data-action="theme#toggle">
+        <%= icon :contrast, size: 18 %>
+        <span class="theme-toggle__label">Switch theme</span>
+      </button>
+    </nav>
+  </div>
+</header>

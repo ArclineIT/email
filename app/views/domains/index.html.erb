@@ -1,0 +1,57 @@
+<% content_for :title, "Domains — Arcline Email" %>
+
+<section class="page-header">
+  <div class="container">
+    <p class="eyebrow">Email</p>
+    <h1 class="page-header__title">Mail domains</h1>
+    <p class="lead">The domains, mailboxes and aliases that <%= Rails.configuration.x.email.mail_host %> accepts mail for.</p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="dash">
+      <div class="panel">
+        <% if @domains.any? %>
+          <div class="table-wrap">
+            <table class="inv-table">
+              <thead>
+                <tr>
+                  <th class="inv-table__th">Domain</th>
+                  <th class="inv-table__th inv-table__th--right">Mailboxes</th>
+                  <th class="inv-table__th inv-table__th--right">Aliases</th>
+                  <th class="inv-table__th">Catch-all</th>
+                  <th class="inv-table__th">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @domains.each do |domain| %>
+                  <tr class="inv-table__row">
+                    <td class="inv-table__td"><%= link_to domain.name, domain_path(domain) %></td>
+                    <td class="inv-table__td inv-table__td--right"><%= domain.mailboxes.size %></td>
+                    <td class="inv-table__td inv-table__td--right"><%= domain.mail_aliases.size %></td>
+                    <td class="inv-table__td inv-table__td--muted"><%= domain.catch_all.presence || "—" %></td>
+                    <td class="inv-table__td"><span class="status-badge status-badge--<%= domain.active? ? "ok" : "pending" %>"><%= domain.active? ? "active" : "disabled" %></span></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="panel__body"><p class="dash-empty">No domains yet.</p></div>
+        <% end %>
+      </div>
+
+      <section class="dash-section">
+        <h2 class="dash-section__title">add a domain</h2>
+        <%= form_with model: @domain, class: "form form--inline" do |form| %>
+          <div class="field">
+            <%= form.label :name, "Domain" %>
+            <%= form.text_field :name, required: true, placeholder: "example.com", autocapitalize: "none", spellcheck: false %>
+          </div>
+          <%= form.submit "Add domain", class: "btn btn--primary" %>
+        <% end %>
+      </section>
+    </div>
+  </div>
+</section>

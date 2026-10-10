@@ -1,0 +1,193 @@
+<% content_for :title, "#{@domain.name} — Arcline Email" %>
+
+<section class="page-header">
+  <div class="container">
+    <p class="eyebrow"><%= link_to "Domains", root_path %></p>
+    <h1 class="page-header__title"><%= @domain.name %></h1>
+    <p class="lead">
+      <span class="status-badge status-badge--<%= @domain.active? ? "ok" : "pending" %>"><%= @domain.active? ? "active" : "disabled" %></span>
+      <%= pluralize(@mailboxes.size, "mailbox") %>, <%= pluralize(@aliases.size, "alias") %>
+    </p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="dash">
+      <section class="dash-section">
+        <h2 class="dash-section__title">mailboxes</h2>
+        <div class="panel">
+          <% if @mailboxes.any? %>
+            <div class="table-wrap">
+              <table class="inv-table">
+                <thead>
+                  <tr>
+                    <th class="inv-table__th">Address</th>
+                    <th class="inv-table__th">Name</th>
+                    <th class="inv-table__th">Quota, status, new password</th>
+                    <th class="inv-table__th"><span class="visually-hidden">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @mailboxes.each do |mailbox| %>
+                    <tr class="inv-table__row">
+                      <td class="inv-table__td"><%= mailbox.address %></td>
+                      <td class="inv-table__td inv-table__td--muted"><%= mailbox.display_name.presence || "—" %></td>
+                      <td class="inv-table__td">
+                        <%= form_with model: [ @domain, mailbox ], class: "row-form" do |form| %>
+                          <%= form.label :quota_mb, "Quota in MB for #{mailbox.address}", class: "visually-hidden" %>
+                          <%= form.number_field :quota_mb, min: 1, class: "row-form__number" %>
+                          <label class="check"><%= form.check_box :active %> Active</label>
+                          <%= form.label :password, "New password for #{mailbox.address}", class: "visually-hidden" %>
+                          <%= form.password_field :password, placeholder: "New password", autocomplete: "new-password", minlength: Mailbox::MIN_PASSWORD_LENGTH %>
+                          <%= form.submit "Save", class: "btn btn--ghost btn--sm" %>
+                        <% end %>
+                      </td>
+                      <td class="inv-table__td inv-table__td--right">
+                        <%= button_to "Delete", domain_mailbox_path(@domain, mailbox), method: :delete, class: "btn btn--danger btn--sm",
+                              data: { turbo_confirm: "Delete #{mailbox.address}? Its mail stays on the server until removed there." } %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% end %>
+          <div class="panel__body">
+            <%= form_with model: [ @domain, @mailbox ], class: "form" do |form| %>
+              <div class="form__row">
+                <div class="field">
+                  <%= form.label :local_part, "New mailbox" %>
+                  <div class="address-field"><%= form.text_field :local_part, required: true, placeholder: "name", autocapitalize: "none", spellcheck: false %><span>@<%= @domain.name %></span></div>
+                </div>
+                <div class="field">
+                  <%= form.label :display_name do %>Name <span class="field__optional">(optional)</span><% end %>
+                  <%= form.text_field :display_name %>
+                </div>
+              </div>
+              <div class="form__row">
+                <div class="field">
+                  <%= form.label :password do %>Password <span class="field__optional">(min. <%= Mailbox::MIN_PASSWORD_LENGTH %> characters)</span><% end %>
+                  <%= form.password_field :password, required: true, minlength: Mailbox::MIN_PASSWORD_LENGTH, maxlength: 72, autocomplete: "new-password" %>
+                </div>
+                <div class="field">
+                  <%= form.label :quota_mb, "Quota (MB)" %>
+                  <%= form.number_field :quota_mb, min: 1, required: true %>
+                </div>
+              </div>
+              <%= form.submit "Create mailbox", class: "btn btn--primary" %>
+            <% end %>
+          </div>
+        </div>
+      </section>
+
+      <section class="dash-section">
+        <h2 class="dash-section__title">aliases</h2>
+        <div class="panel">
+          <% if @aliases.any? %>
+            <div class="table-wrap">
+              <table class="inv-table">
+                <thead>
+                  <tr>
+                    <th class="inv-table__th">Address</th>
+                    <th class="inv-table__th">Forwards to</th>
+                    <th class="inv-table__th"><span class="visually-hidden">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @aliases.each do |mail_alias| %>
+                    <tr class="inv-table__row">
+                      <td class="inv-table__td"><%= mail_alias.address %></td>
+                      <td class="inv-table__td inv-table__td--muted"><%= mail_alias.destination_list.join(", ") %></td>
+                      <td class="inv-table__td inv-table__td--right">
+                        <%= button_to "Delete", domain_mail_alias_path(@domain, mail_alias), method: :delete, class: "btn btn--danger btn--sm" %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% end %>
+          <div class="panel__body">
+            <%= form_with model: [ @domain, @alias ], class: "form" do |form| %>
+              <div class="form__row">
+                <div class="field">
+                  <%= form.label :local_part, "New alias" %>
+                  <div class="address-field"><%= form.text_field :local_part, required: true, placeholder: "info", autocapitalize: "none", spellcheck: false %><span>@<%= @domain.name %></span></div>
+                </div>
+                <div class="field">
+                  <%= form.label :destinations, "Forward to" %>
+                  <%= form.text_field :destinations, required: true, placeholder: "blake@#{@domain.name}, other@example.org" %>
+                </div>
+              </div>
+              <%= form.submit "Create alias", class: "btn btn--primary" %>
+            <% end %>
+          </div>
+        </div>
+      </section>
+
+      <section class="dash-section">
+        <h2 class="dash-section__title">delivery</h2>
+        <div class="panel">
+          <div class="panel__body">
+            <%= form_with model: @domain, class: "form" do |form| %>
+              <div class="field">
+                <%= form.label :catch_all do %>Catch-all <span class="field__optional">(optional)</span><% end %>
+                <%= form.email_field :catch_all, placeholder: "postmaster@#{@domain.name}" %>
+                <p class="field__hint">Mail to addresses that do not exist is delivered here. Leave blank to reject it, which is usually better: a catch-all collects a lot of spam.</p>
+              </div>
+              <label class="check"><%= form.check_box :active %> Accept mail for this domain</label>
+              <%= form.submit "Save", class: "btn btn--primary" %>
+            <% end %>
+          </div>
+        </div>
+      </section>
+
+      <section class="dash-section" id="dns">
+        <h2 class="dash-section__title">dns records</h2>
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="inv-table">
+              <thead>
+                <tr>
+                  <th class="inv-table__th">Type</th>
+                  <th class="inv-table__th">Name</th>
+                  <th class="inv-table__th">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @domain.dns_records.each do |record| %>
+                  <tr class="inv-table__row">
+                    <td class="inv-table__td"><%= record[:type] %></td>
+                    <td class="inv-table__td inv-table__td--answer"><%= record[:name] %></td>
+                    <td class="inv-table__td inv-table__td--answer"><%= record[:value] %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          <% if @checks %>
+            <ul class="findings">
+              <% @checks.each do |check| %>
+                <li class="findings__item">
+                  <span class="status-badge status-badge--<%= check.ok? ? "ok" : "warn" %>"><%= check.label %></span>
+                  <span><%= check.detail %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+        <div class="dash-actions dash-actions--row">
+          <%= button_to "Check published DNS", check_dns_domain_path(@domain), class: "btn btn--primary btn--sm" %>
+          <%= button_to "Generate a new DKIM key", rotate_dkim_domain_path(@domain), class: "btn btn--ghost btn--sm",
+                data: { turbo_confirm: "Generate a new DKIM key? Outgoing mail will fail DKIM until the new record is published and the keys are exported again." } %>
+        </div>
+      </section>
+
+      <div class="dash-actions">
+        <%= button_to "Delete domain", domain_path(@domain), method: :delete, class: "btn btn--danger btn--sm",
+              data: { turbo_confirm: "Delete #{@domain.name} with all of its mailboxes and aliases? This cannot be undone." } %>
+      </div>
+    </div>
+  </div>
+</section>
