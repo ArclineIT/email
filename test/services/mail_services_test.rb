@@ -4,10 +4,10 @@ class MailServicesTest < ActiveSupport::TestCase
   setup { @domain = Domain.create!(name: "example.com") }
 
   test "a correctly published domain passes every DNS check" do
-    dns = FakeDns.new(mx: { "example.com" => [ "Mail.ArclineIT.com" ] },
+    dns = FakeDns.new(mx: { "example.com" => [ "Mail.Arcline.IT" ] },
                       txt: { "example.com" => [ "v=spf1 mx -all" ], @domain.dkim_record_name => [ @domain.dkim_record_value ],
                              "_dmarc.example.com" => [ "v=DMARC1; p=quarantine" ] })
-    results = DnsCheck.new(@domain, dns: dns, mail_host: "mail.arclineit.com").call
+    results = DnsCheck.new(@domain, dns: dns, mail_host: "mail.arcline.it").call
 
     assert_equal %w[ MX SPF DKIM DMARC ], results.map(&:label)
     assert results.all?(&:ok?), results.reject(&:ok?).map(&:detail).inspect
@@ -16,14 +16,14 @@ class MailServicesTest < ActiveSupport::TestCase
   test "missing and wrong records are explained" do
     other_key = Domain.new(name: "x.test").tap(&:generate_dkim_key).dkim_record_value
     dns = FakeDns.new(mx: { "example.com" => [ "mx.other-host.net" ] }, txt: { "example.com" => [ "v=spf1 include:_spf.google.com ~all" ], @domain.dkim_record_name => [ other_key ] })
-    results = DnsCheck.new(@domain, dns: dns, mail_host: "mail.arclineit.com").call.index_by(&:label)
+    results = DnsCheck.new(@domain, dns: dns, mail_host: "mail.arcline.it").call.index_by(&:label)
 
-    assert_equal "points at mx.other-host.net, not mail.arclineit.com", results["MX"].detail
+    assert_equal "points at mx.other-host.net, not mail.arcline.it", results["MX"].detail
     assert_not results["SPF"].ok?
     assert_equal "a different key is published", results["DKIM"].detail
     assert_equal "no DMARC record", results["DMARC"].detail
 
-    empty = DnsCheck.new(@domain, dns: FakeDns.new, mail_host: "mail.arclineit.com").call
+    empty = DnsCheck.new(@domain, dns: FakeDns.new, mail_host: "mail.arcline.it").call
     assert_equal [ "no MX record", "no SPF record", "no record at arcline._domainkey.example.com", "no DMARC record" ], empty.map(&:detail)
   end
 

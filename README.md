@@ -101,7 +101,7 @@ adjust them if a domain also sends mail from elsewhere.
 |---|---|---|
 | `PORT` | `3000` | HTTP listen port |
 | `DATABASE_PATH` | `storage/<env>.sqlite3` | SQLite database file, shared with Postfix and Dovecot |
-| `EMAIL_MAIL_HOST` | `mail.arclineit.com` | The mail server's hostname |
+| `EMAIL_MAIL_HOST` | `mail.arcline.it` | The mail server's hostname |
 | `EMAIL_ADMIN_USERNAME` | — | Admin username (HTTP basic auth) |
 | `EMAIL_ADMIN_PASSWORD` | — | Admin password |
 

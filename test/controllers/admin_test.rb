@@ -82,7 +82,7 @@ class AdminTest < ActionDispatch::IntegrationTest
   end
 
   test "checks published DNS and shows the result" do
-    stub_method(DnsLookup, :new, FakeDns.new(mx: { "example.com" => [ "mail.arclineit.com" ] })) do
+    stub_method(DnsLookup, :new, FakeDns.new(mx: { "example.com" => [ "mail.arcline.it" ] })) do
       post check_dns_domain_path(@domain)
     end
     follow_redirect!

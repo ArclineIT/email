@@ -19,7 +19,7 @@ Open a GitHub issue. Include:
 - Go version and OS
 
 For security vulnerabilities, do **not** open a public issue. Email
-`blake@arclineit.com` directly with details.
+`blake@arcline.it` directly with details.
 
 ## Submitting Changes
 
