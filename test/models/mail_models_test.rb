@@ -13,9 +13,9 @@ class MailModelsTest < ActiveSupport::TestCase
   end
 
   test "lists the DNS records to publish" do
-    records = @domain.dns_records(mail_host: "mail.arclineit.com")
+    records = @domain.dns_records(mail_host: "mail.arcline.it")
 
-    assert_equal [ [ "MX", "example.com", "10 mail.arclineit.com." ], [ "TXT", "example.com", "v=spf1 mx -all" ] ], records.first(2).map(&:values)
+    assert_equal [ [ "MX", "example.com", "10 mail.arcline.it." ], [ "TXT", "example.com", "v=spf1 mx -all" ] ], records.first(2).map(&:values)
     assert_equal "arcline._domainkey.example.com", records[2][:name]
     assert_match(/\Av=DKIM1; k=rsa; p=[A-Za-z0-9+\/=]{300,}\z/, records[2][:value])
     assert_equal [ "_dmarc.example.com", "v=DMARC1; p=quarantine; rua=mailto:postmaster@example.com" ], records[3].values_at(:name, :value)
