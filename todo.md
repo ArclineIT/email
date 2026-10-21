@@ -21,7 +21,6 @@ OpenDKIM do the mail handling and read this app's database.
 - [ ] Show each mailbox's quota usage (from Dovecot)
 - [ ] Encrypt DKIM private keys at rest
 - [ ] Per-domain limits on mailboxes and aliases
-- [ ] Provision mailboxes from billing when a plan is bought
 
 ## Mail server (outside this app)
 - [ ] TLS certificates for the mail host (Let's Encrypt)
